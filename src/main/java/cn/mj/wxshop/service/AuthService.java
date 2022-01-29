@@ -16,9 +16,9 @@ public class AuthService {
     }
 
     public User sendVerification(String tel) {
-       User user =  userService.createUserIfExist(tel);
-       String correctCode = smsCodeService.sendSmsCode(tel);
-       verificationCodeCheckService.addCode(tel,correctCode);
-       return user;
+        User user = userService.createUserIfExist(tel);
+        String correctCode = smsCodeService.sendSmsCode(tel);
+        verificationCodeCheckService.addCode(tel, correctCode);
+        return user;
     }
 }
