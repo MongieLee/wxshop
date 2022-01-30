@@ -1,13 +1,17 @@
 package cn.mj.wxshop.controller;
 
+import cn.mj.wxshop.generate.User;
 import cn.mj.wxshop.service.AuthService;
 import cn.mj.wxshop.service.TelVerificationService;
+import cn.mj.wxshop.service.UserContent;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.UsernamePasswordToken;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletResponse;
+import java.util.HashMap;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api")
@@ -21,26 +25,48 @@ public class AuthController {
     }
 
     @PostMapping("/code")
-    public void code(@RequestBody TelAndCode telAndCode, HttpServletResponse response) {
+    public Object code(@RequestBody TelAndCode telAndCode, HttpServletResponse response) {
         if (telVerficationService.verifyTelParameter(telAndCode)) {
             authService.sendVerification(telAndCode.getTel());
         } else {
             response.setStatus(HttpStatus.BAD_REQUEST.value());
         }
+        HashMap<String, Object> objectObjectHashMap = new HashMap<>();
+        objectObjectHashMap.put("success", true);
+        return objectObjectHashMap;
     }
 
     @GetMapping("/isLogin")
-    public void code(){
-        System.out.println(SecurityUtils.getSubject().getPrincipal());
+    public Object code() {
+        if (UserContent.getCurrentUser() == null) {
+            HashMap<String, Object> objectObjectHashMap = new HashMap<>();
+            objectObjectHashMap.put("isLogin", false);
+            return objectObjectHashMap;
+        } else {
+            HashMap<String, Object> objectObjectHashMap = new HashMap<>();
+            objectObjectHashMap.put("isLogin", true);
+            return objectObjectHashMap;
+        }
+    }
+
+    @GetMapping("/logout")
+    public Object logout() {
+        SecurityUtils.getSubject().logout();
+        HashMap<String, Object> objectObjectHashMap = new HashMap<>();
+        objectObjectHashMap.put("success", true);
+        return objectObjectHashMap;
     }
 
     @PostMapping("/login")
-    public void login(@RequestBody TelAndCode telAndCode) {
+    public Object login(@RequestBody TelAndCode telAndCode) {
         UsernamePasswordToken token = new UsernamePasswordToken(
                 telAndCode.getTel(),
                 telAndCode.getCode());
         token.setRememberMe(true);
         SecurityUtils.getSubject().login(token);
+        HashMap<String, Object> objectObjectHashMap = new HashMap<>();
+        objectObjectHashMap.put("success", true);
+        return objectObjectHashMap;
     }
 
     public static class TelAndCode {

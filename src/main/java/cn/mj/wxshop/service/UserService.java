@@ -15,6 +15,10 @@ public class UserService {
         this.userDao = userDao;
     }
 
+    public User getUserByTel(String tel) {
+        return userDao.getUserByTel(tel);
+    }
+
     public User createUserIfExist(String tel) {
         User user = new User();
         user.setTel(tel);
