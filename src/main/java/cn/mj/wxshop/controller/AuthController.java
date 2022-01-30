@@ -1,14 +1,11 @@
 package cn.mj.wxshop.controller;
 
 import cn.mj.wxshop.service.AuthService;
-import cn.mj.wxshop.service.TelVerficationService;
+import cn.mj.wxshop.service.TelVerificationService;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.UsernamePasswordToken;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletResponse;
 
@@ -16,9 +13,9 @@ import javax.servlet.http.HttpServletResponse;
 @RequestMapping("/api")
 public class AuthController {
     private final AuthService authService;
-    private final TelVerficationService telVerficationService;
+    private final TelVerificationService telVerficationService;
 
-    public AuthController(AuthService authService, TelVerficationService telVerficationService) {
+    public AuthController(AuthService authService, TelVerificationService telVerficationService) {
         this.authService = authService;
         this.telVerficationService = telVerficationService;
     }
@@ -30,6 +27,11 @@ public class AuthController {
         } else {
             response.setStatus(HttpStatus.BAD_REQUEST.value());
         }
+    }
+
+    @GetMapping("/isLogin")
+    public void code(){
+        System.out.println(SecurityUtils.getSubject().getPrincipal());
     }
 
     @PostMapping("/login")

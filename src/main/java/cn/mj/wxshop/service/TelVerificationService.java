@@ -6,7 +6,7 @@ import org.springframework.stereotype.Service;
 import java.util.regex.Pattern;
 
 @Service
-public class TelVerficationService {
+public class TelVerificationService {
     private static Pattern TEL_PATTERN = Pattern.compile("1\\d{10}");
 
     public boolean verifyTelParameter(AuthController.TelAndCode param) {
