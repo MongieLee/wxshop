@@ -7,7 +7,7 @@ import org.junit.jupiter.api.Test;
 class TelVerificationServiceTest {
 
     public static final AuthController.TelAndCode VALID_PARAMETER = new AuthController.TelAndCode("13232251037");
-    public static final AuthController.TelAndCode VALID_PARAMETER_CODE = new AuthController.TelAndCode("888888","13232251037");
+    public static final AuthController.TelAndCode VALID_PARAMETER_CODE = new AuthController.TelAndCode("888888", "13232251037");
     public static final AuthController.TelAndCode EMPTY_TEL = new AuthController.TelAndCode();
 
     @Test

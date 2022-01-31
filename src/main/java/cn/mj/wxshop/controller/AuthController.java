@@ -1,6 +1,5 @@
 package cn.mj.wxshop.controller;
 
-import cn.mj.wxshop.generate.User;
 import cn.mj.wxshop.service.AuthService;
 import cn.mj.wxshop.service.TelVerificationService;
 import cn.mj.wxshop.service.UserContent;
@@ -11,7 +10,6 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletResponse;
 import java.util.HashMap;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/api")
