@@ -1,6 +1,7 @@
 package cn.mj.wxshop.service;
 
 import cn.mj.wxshop.WxshopApplication;
+import cn.mj.wxshop.entity.AuthResult;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
@@ -45,10 +46,10 @@ public class AuthIntegrationTest {
 
     private static class CustomHttpResponse {
         int code;
-        Map<String, Object> body;
+        Object body;
         List<Cookie> cookies;
 
-        CustomHttpResponse(int code, Map<String, Object> body, List<Cookie> cookies) {
+        CustomHttpResponse(int code, Object body, List<Cookie> cookies) {
             this.code = code;
             this.body = body;
             this.cookies = cookies;
@@ -58,7 +59,7 @@ public class AuthIntegrationTest {
             return code;
         }
 
-        public Map<String, Object> getBody() {
+        public Object getBody() {
             return body;
         }
 
@@ -67,7 +68,7 @@ public class AuthIntegrationTest {
         }
     }
 
-    private CustomHttpResponse sendHttpRequest(String apiName, String method, Object requestBody, String cookie) throws IOException {
+    private CustomHttpResponse sendHttpRequest(String apiName, String method, Object requestBody, String cookie, Class converClass) throws IOException {
         CloseableHttpClient httpclient = HttpClients.createDefault();
         HttpRequestBase request = null;
         if (HttpMethod.GET.matches(method)) {
@@ -88,7 +89,12 @@ public class AuthIntegrationTest {
             HttpClientContext context = HttpClientContext.create();
             CloseableHttpResponse response = httpclient.execute(request, context);
             String responseBodyStr = EntityUtils.toString(response.getEntity());
-            Map<String, Object> responseBody = objectMapper.readValue(responseBodyStr, Map.class);
+            Object responseBody;
+            if (converClass != null) {
+                responseBody = objectMapper.readValue(responseBodyStr, converClass);
+            } else {
+                responseBody = objectMapper.readValue(responseBodyStr, Map.class);
+            }
             List<Cookie> cookies = context.getCookieStore().getCookies();
             int statusCode = response.getStatusLine().getStatusCode();
             CustomHttpResponse customHttpResponse = new CustomHttpResponse(statusCode, responseBody, cookies);
@@ -101,29 +107,29 @@ public class AuthIntegrationTest {
     @Test
     public void loginLogoutTest() throws IOException {
         // 先进行当前登录状态接口，应返回未登录
-        Object isLogin = sendHttpRequest("/api/isLogin", "GET", null, null).getBody().get("isLogin");
-        Assertions.assertFalse((Boolean) isLogin);
+        AuthResult authResult = (AuthResult) sendHttpRequest("/api/isLogin", "GET", null, null, AuthResult.class).getBody();
+        Assertions.assertFalse(authResult.getIsLogin());
 
         // 发送验证码
-        int statusCode = sendHttpRequest("/api/code", "POST", TelVerificationServiceTest.VALID_PARAMETER, null).getCode();
+        int statusCode = sendHttpRequest("/api/code", "POST", TelVerificationServiceTest.VALID_PARAMETER, null, null).getCode();
         Assertions.assertEquals(HTTP_OK, statusCode);
 
         // 带着验证码登录，应当返回cookie包含JSESSIONID
-        List<Cookie> post = sendHttpRequest("/api/login", "POST", TelVerificationServiceTest.VALID_PARAMETER_CODE, null).getCookies();
+        List<Cookie> post = sendHttpRequest("/api/login", "POST", TelVerificationServiceTest.VALID_PARAMETER_CODE, null, null).getCookies();
         Cookie jsessionid = post.stream().filter(cookie -> cookie.getName().contains("JSESSIONID")).findFirst().get();
         Assertions.assertNotNull(jsessionid);
 
         // 再次校验当前登录状态，应该为已登录
-        isLogin = sendHttpRequest("/api/isLogin", "GET", null, jsessionid.getName() + "=" + jsessionid.getValue()).getBody().get("isLogin");
-        Assertions.assertTrue((Boolean) isLogin);
+        authResult = (AuthResult) sendHttpRequest("/api/isLogin", "GET", null, jsessionid.getName() + "=" + jsessionid.getValue(), AuthResult.class).getBody();
+        Assertions.assertTrue(authResult.getIsLogin());
 
         // 进行注销
-        statusCode = sendHttpRequest("/api/logout", "GET", null, jsessionid.getName() + "=" + jsessionid.getValue()).getCode();
+        statusCode = sendHttpRequest("/api/logout", "GET", null, jsessionid.getName() + "=" + jsessionid.getValue(), null).getCode();
         Assertions.assertEquals(HTTP_OK, statusCode);
 
         // 注销后应该为未登录
-        isLogin = sendHttpRequest("/api/isLogin", "GET", null, null).getBody().get("isLogin");
-        Assertions.assertFalse((Boolean) isLogin);
+        authResult = (AuthResult) sendHttpRequest("/api/isLogin", "GET", null, null, AuthResult.class).getBody();
+        Assertions.assertFalse(authResult.getIsLogin());
     }
 
     @Test

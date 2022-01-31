@@ -1,5 +1,8 @@
 package cn.mj.wxshop.controller;
 
+import cn.mj.wxshop.entity.AuthResult;
+import cn.mj.wxshop.entity.CommonResult;
+import cn.mj.wxshop.generate.User;
 import cn.mj.wxshop.service.AuthService;
 import cn.mj.wxshop.service.TelVerificationService;
 import cn.mj.wxshop.service.UserContent;
@@ -9,7 +12,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletResponse;
-import java.util.HashMap;
 
 @RestController
 @RequestMapping("/api")
@@ -26,33 +28,27 @@ public class AuthController {
     public Object code(@RequestBody TelAndCode telAndCode, HttpServletResponse response) {
         if (telVerficationService.verifyTelParameter(telAndCode)) {
             authService.sendVerification(telAndCode.getTel());
+            return CommonResult.success("验证码已发送");
         } else {
             response.setStatus(HttpStatus.BAD_REQUEST.value());
+            return CommonResult.failure("请填写正确的手机号码");
         }
-        HashMap<String, Object> objectObjectHashMap = new HashMap<>();
-        objectObjectHashMap.put("success", true);
-        return objectObjectHashMap;
     }
 
     @GetMapping("/isLogin")
     public Object code() {
-        if (UserContent.getCurrentUser() == null) {
-            HashMap<String, Object> objectObjectHashMap = new HashMap<>();
-            objectObjectHashMap.put("isLogin", false);
-            return objectObjectHashMap;
+        User currentUser = UserContent.getCurrentUser();
+        if (currentUser == null) {
+            return AuthResult.failure("未登录");
         } else {
-            HashMap<String, Object> objectObjectHashMap = new HashMap<>();
-            objectObjectHashMap.put("isLogin", true);
-            return objectObjectHashMap;
+            return AuthResult.success("已登录", currentUser);
         }
     }
 
     @GetMapping("/logout")
     public Object logout() {
         SecurityUtils.getSubject().logout();
-        HashMap<String, Object> objectObjectHashMap = new HashMap<>();
-        objectObjectHashMap.put("success", true);
-        return objectObjectHashMap;
+        return CommonResult.success("注销成功");
     }
 
     @PostMapping("/login")
@@ -62,9 +58,7 @@ public class AuthController {
                 telAndCode.getCode());
         token.setRememberMe(true);
         SecurityUtils.getSubject().login(token);
-        HashMap<String, Object> objectObjectHashMap = new HashMap<>();
-        objectObjectHashMap.put("success", true);
-        return objectObjectHashMap;
+        return AuthResult.success("登录成功");
     }
 
     public static class TelAndCode {
