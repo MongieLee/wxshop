@@ -1,9 +1,16 @@
-create table USER
+CREATE TABLE USER
 (
-    ID         bigint primary key AUTO_INCREMENT,
-    NAME       varchar(100),
-    TEL        varchar(20) unique,
-    AVATAR     varchar(1024),
-    CREATED_AT datetime,
-    UPDATED_AT datetime
-)
+    ID         BIGINT PRIMARY KEY AUTO_INCREMENT,
+    NAME       VARCHAR(100),
+    TEL        VARCHAR(20) UNIQUE,
+    AVATAR     VARCHAR(1024),
+    ADDRESS    VARCHAR(1024),
+    CREATED_AT TIMESTAMP NOT NULL DEFAULT NOW(),
+    UPDATED_AT TIMESTAMP NOT NULL DEFAULT NOW()
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4
+  COLLATE = utf8mb4_unicode_ci;
+
+INSERT INTO USER(ID, NAME, TEL, AVATAR, ADDRESS)
+VALUES (1, 'lemon', '13232251000', 'http://url', '火星')
+

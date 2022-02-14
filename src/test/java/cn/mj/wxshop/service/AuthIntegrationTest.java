@@ -27,9 +27,9 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
-import static java.net.HttpURLConnection.HTTP_BAD_REQUEST;
-import static java.net.HttpURLConnection.HTTP_OK;
+import static java.net.HttpURLConnection.*;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(classes = WxshopApplication.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -89,11 +89,13 @@ public class AuthIntegrationTest {
             HttpClientContext context = HttpClientContext.create();
             CloseableHttpResponse response = httpclient.execute(request, context);
             String responseBodyStr = EntityUtils.toString(response.getEntity());
-            Object responseBody;
+            Object responseBody = null;
             if (converClass != null) {
                 responseBody = objectMapper.readValue(responseBodyStr, converClass);
             } else {
-                responseBody = objectMapper.readValue(responseBodyStr, Map.class);
+                if (responseBodyStr != null && !Objects.equals(responseBodyStr, "")) {
+                    responseBody = objectMapper.readValue(responseBodyStr, Map.class);
+                }
             }
             List<Cookie> cookies = context.getCookieStore().getCookies();
             int statusCode = response.getStatusLine().getStatusCode();
@@ -156,5 +158,11 @@ public class AuthIntegrationTest {
         CloseableHttpResponse response = httpclient.execute(httpPost);
         int statusCode = response.getStatusLine().getStatusCode();
         Assertions.assertEquals(HTTP_BAD_REQUEST, statusCode);
+    }
+
+    @Test
+    public void returnUnauthorizedIfNotLogin() throws IOException {
+        int code = sendHttpRequest("/api/any", "GET", null, null, null).getCode();
+        Assertions.assertEquals(HTTP_UNAUTHORIZED, code);
     }
 }

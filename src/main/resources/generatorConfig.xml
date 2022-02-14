@@ -11,23 +11,39 @@
         </jdbcConnection>
 
         <javaModelGenerator targetPackage="cn.mj.wxshop.generate" targetProject="src/main/java">
-            <property name="enableSubPackages" value="true" />
-            <property name="trimStrings" value="true" />
+            <property name="enableSubPackages" value="true"/>
+            <property name="trimStrings" value="true"/>
         </javaModelGenerator>
 
-        <sqlMapGenerator targetPackage="db.mybatis"  targetProject="src/main/resources">
-            <property name="enableSubPackages" value="true" />
+        <sqlMapGenerator targetPackage="db.mybatis" targetProject="src/main/resources">
+            <property name="enableSubPackages" value="true"/>
         </sqlMapGenerator>
 
-        <javaClientGenerator type="XMLMAPPER" targetPackage="cn.mj.wxshop.generate"  targetProject="src/main/java">
-            <property name="enableSubPackages" value="true" />
+        <javaClientGenerator type="XMLMAPPER" targetPackage="cn.mj.wxshop.generate" targetProject="src/main/java">
+            <property name="enableSubPackages" value="true"/>
         </javaClientGenerator>
 
-        <table schema="wxshop" tableName="USER" domainObjectName="User" >
+        <table schema="wxshop" tableName="USER" domainObjectName="User">
+            <!--            默认值就是false，如果为true，会按照数据库字段生成对应实体类的属性名-->
             <property name="useActualColumnNames" value="false"/>
-            <generatedKey column="ID" sqlStatement="MySql" identity="true" />
-            <columnOverride column="CREATED_AT" property="createdAt" />
-            <columnOverride column="UPDATED_AT" property="updatedAt" />
+            <generatedKey column="ID" sqlStatement="MySql" identity="true"/>
+        </table>
+        <table schema="wxshop" tableName="GOODS" domainObjectName="Goods">
+            <property name="useActualColumnNames" value="false"/>
+            <!--           插入时自动给id赋值，注意,identity默认为false,此时生成的sql的order为BEFORE.而我们需要的是插入后查询id并给bean赋值,所以需要的是AFTER,所以identity为true. -->
+            <generatedKey column="ID" sqlStatement="MySql" identity="true"/>
+        </table>
+        <table schema="wxshop" tableName="SHOP" domainObjectName="Shop">
+            <property name="useActualColumnNames" value="false"/>
+            <generatedKey column="ID" sqlStatement="MySql" identity="true"/>
+        </table>
+        <table schema="wxshop" tableName="ORDER" domainObjectName="Order">
+            <property name="useActualColumnNames" value="false"/>
+            <generatedKey column="ID" sqlStatement="MySql" identity="true"/>
+        </table>
+        <table schema="wxshop" tableName="SHOPPING_CART" domainObjectName="ShoppingCart">
+            <property name="useActualColumnNames" value="false"/>
+            <generatedKey column="ID" sqlStatement="MySql" identity="true"/>
         </table>
     </context>
 </generatorConfiguration>
